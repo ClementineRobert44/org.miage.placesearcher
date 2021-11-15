@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.iammert.library.ui.multisearchviewlib.MultiSearchView;
 import com.squareup.otto.Subscribe;
 
 import org.miage.placesearcher.event.EventBusManager;
@@ -41,6 +42,9 @@ public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.activity_main_loader)
     ProgressBar mProgressBar;
+
+    @BindView(R.id.multiSearchView)
+    MultiSearchView mMultiSearchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +85,34 @@ public class MainActivity extends AppCompatActivity {
                 PlaceSearchService.INSTANCE.searchPlacesFromAddress(editable.toString());
             }
         });
+
+       mMultiSearchView.setSearchViewListener(new MultiSearchView.MultiSearchViewListener(){
+
+           @Override
+           public void onTextChanged(int i, @NonNull CharSequence charSequence) {
+
+           }
+
+           @Override
+           public void onSearchItemRemoved(int i) {
+               if(i == 0){
+                   this.onItemSelected(i-1, "");
+               }
+
+           }
+
+           @Override
+           public void onSearchComplete(int i, @NonNull CharSequence charSequence) {
+               mProgressBar.setVisibility(View.VISIBLE);
+               PlaceSearchService.INSTANCE.searchPlacesFromAddress(charSequence.toString());
+           }
+
+           @Override
+           public void onItemSelected(int i, @NonNull CharSequence charSequence) {
+               mProgressBar.setVisibility(View.VISIBLE);
+               PlaceSearchService.INSTANCE.searchPlacesFromAddress(charSequence.toString());
+           }
+       });
 
         // Log current token (if any define, otherwise our toekn service will be notified)
         FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
